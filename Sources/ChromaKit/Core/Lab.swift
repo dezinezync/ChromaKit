@@ -42,3 +42,43 @@ struct Lab {
 		xyz().p3()
 	}
 }
+
+#if canImport(Accelerate)
+import Accelerate
+
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+extension Lab {
+  func accl_xyz() -> XYZ {
+    let k = vDSP.divide([24389.0], 27.0).first!
+    let e = vDSP.divide([216.0], 24389.0).first!
+    
+    let fy = vDSP.divide([vDSP.sum([l, 16])], 116)
+    let fx = vDSP.sum([fy.first!, vDSP.divide([a], 500).first!])
+    let fz = vDSP.sum([fy.first!, vDSP.multiply(-1, vDSP.divide([b], 200)).first!])
+    
+    let x = vForce.pow(bases: [fx], exponents: [3]).first! > e ?
+    vForce.pow(bases: [fx], exponents: [3]).first! :
+    vDSP.divide([vDSP.multiply(116, [fx]).first! - 16], k).first!
+    
+    let y = l > vDSP.multiply(k, [e]).first! ?
+    vForce.pow(bases: fy, exponents: [3]).first! :
+    vDSP.divide([l], k).first!
+    
+    let z = vForce.pow(bases: [fz], exponents: [3]).first! > e ?
+    vForce.pow(bases: [fz], exponents: [3]).first! :
+    vDSP.divide([vDSP.multiply(116, [fz]).first! - 16], k).first!
+    
+    let d65WhitePoint = (
+      x: vDSP.divide([0.3127],0.3290).first!,
+      y: 1.00000,
+      z: vDSP.divide([vDSP.sum([1.0,-0.3127, -0.3290])], 0.3290).first!
+    )
+    
+    return XYZ(
+      x: vDSP.multiply(d65WhitePoint.x, [x]).first!,
+      y: vDSP.multiply(d65WhitePoint.y, [y]).first!,
+      z: vDSP.multiply(d65WhitePoint.z, [z]).first!
+    )
+  }
+}
+#endif

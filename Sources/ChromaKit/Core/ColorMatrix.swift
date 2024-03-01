@@ -19,3 +19,44 @@ extension ColorMatrix {
 		)
 	}
 }
+
+#if canImport(simd)
+import simd
+import Accelerate
+
+extension ColorMatrix {
+  func accl_dotProduct(_ components: ColorComponents) -> ColorComponents {
+    let componentsMatrix = SIMD3<Double>(
+      components.0,
+      components.1,
+      components.2
+    )
+    
+    let multiplicatorsMatrix = double3x3([
+      SIMD3(x.0, x.1, x.2),
+      SIMD3(y.0, y.1, y.2),
+      SIMD3(z.0, z.1, z.2)
+    ])
+    
+    let result = componentsMatrix * multiplicatorsMatrix
+    
+    return (result.x, result.y, result.z)
+    /*
+     * produces incorrect results in comparison to
+     * existing implementations using standard swift arithmetic
+     *
+     var result: [Double] = Array(repeating: 0, count: 3)
+     
+     result[0] = vDSP.sum(vDSP.multiply(components.0, [x.0, x.1, x.2]))
+     result[1] = vDSP.sum(vDSP.multiply(components.1, [y.0, y.1, y.2]))
+     result[2] = vDSP.sum(vDSP.multiply(components.2, [z.0, z.1, z.2]))
+     
+     return (
+       result[0],
+       result[1],
+       result[2]
+     )
+     */
+  }
+}
+#endif
