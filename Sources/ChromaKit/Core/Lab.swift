@@ -48,25 +48,26 @@ import Accelerate
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension Lab {
+  static let k = vDSP.divide([24389.0], 27.0).first!
+  static let e = vDSP.divide([216.0], 24389.0).first!
+  static let limit = vDSP.multiply(Self.k, [Self.e]).first!
+  
   func accl_xyz() -> XYZ {
-    let k = vDSP.divide([24389.0], 27.0).first!
-    let e = vDSP.divide([216.0], 24389.0).first!
-    
     let fy = vDSP.divide([vDSP.sum([l, 16])], 116)
     let fx = vDSP.sum([fy.first!, vDSP.divide([a], 500).first!])
     let fz = vDSP.sum([fy.first!, vDSP.multiply(-1, vDSP.divide([b], 200)).first!])
     
-    let x = vForce.pow(bases: [fx], exponents: [3]).first! > e ?
+    let x = vForce.pow(bases: [fx], exponents: [3]).first! > Self.e ?
     vForce.pow(bases: [fx], exponents: [3]).first! :
-    vDSP.divide([vDSP.multiply(116, [fx]).first! - 16], k).first!
+    vDSP.divide([vDSP.multiply(116, [fx]).first! - 16], Self.k).first!
     
-    let y = l > vDSP.multiply(k, [e]).first! ?
+    let y = l > Self.limit ?
     vForce.pow(bases: fy, exponents: [3]).first! :
-    vDSP.divide([l], k).first!
+    vDSP.divide([l], Self.k).first!
     
-    let z = vForce.pow(bases: [fz], exponents: [3]).first! > e ?
+    let z = vForce.pow(bases: [fz], exponents: [3]).first! > Self.e ?
     vForce.pow(bases: [fz], exponents: [3]).first! :
-    vDSP.divide([vDSP.multiply(116, [fz]).first! - 16], k).first!
+    vDSP.divide([vDSP.multiply(116, [fz]).first! - 16], Self.k).first!
     
     let d65WhitePoint = (
       x: vDSP.divide([0.3127],0.3290).first!,
