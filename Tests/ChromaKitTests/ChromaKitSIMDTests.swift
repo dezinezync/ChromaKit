@@ -10,6 +10,9 @@ import Accelerate
 import XCTest
 @testable import ChromaKit
 
+/// For running the following tests and validating correctly
+/// disable the `accl_method` calls in the main functions
+/// of each Struct. 
 final class ChromaKitACCLTests: XCTestCase {
   fileprivate let standardMatrix = ColorMatrix(x: (0.5, 1, 1), y: (0.25, 1, 0), z: (0.125, 0, 1))
   fileprivate let standardComponent: ColorComponents = (0.5, 0.5, 0.5)
