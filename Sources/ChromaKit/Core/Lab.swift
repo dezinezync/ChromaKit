@@ -12,6 +12,11 @@ struct Lab {
 	// MARK: Conversions
 	
 	func xyz() -> XYZ {
+    #if canImport(Accelerate)
+    if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
+      return accl_xyz()
+    }
+    #endif
 		let k = 24389.0/27.0
 		let e = 216.0/24389.0
 		

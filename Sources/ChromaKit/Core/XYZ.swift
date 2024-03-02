@@ -12,6 +12,11 @@ struct XYZ {
 	// MARK: Conversions
 	
 	func p3() -> P3 {
+    #if canImport(Accelerate)
+    if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
+      return accl_p3()
+    }
+    #endif
 		let xyzToLinearP3 = ColorMatrix(
 			x: (446124/178915, -333277/357830,   -72051/178915),
 			y: (-14852/17905,    63121/35810,       423/17905),
