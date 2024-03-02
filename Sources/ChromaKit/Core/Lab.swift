@@ -2,6 +2,11 @@ import Foundation
 
 /// A Lab value in the CIELab color space
 struct Lab {
+  static let d65WhitePoint = (
+    x: 0.3127/0.3290,
+    y: 1.00000,
+    z: (1.0 - 0.3127 - 0.3290) / 0.3290
+  )
 	
 	// MARK: Properties
 	
@@ -28,16 +33,10 @@ struct Lab {
 		let y = l > k * e      ? pow(fy, 3) : l/k
 		let z = pow(fz, 3) > e ? pow(fz, 3) : (116 * fz - 16)/k
 		
-		let d65WhitePoint = (
-			x: 0.3127/0.3290,
-			y: 1.00000,
-			z: (1.0 - 0.3127 - 0.3290) / 0.3290
-		)
-		
 		return XYZ(
-			x: x * d65WhitePoint.x,
-			y: y * d65WhitePoint.y,
-			z: z * d65WhitePoint.z
+      x: x * Self.d65WhitePoint.x,
+      y: y * Self.d65WhitePoint.y,
+      z: z * Self.d65WhitePoint.z
 		)
 	}
 	
@@ -53,6 +52,12 @@ import Accelerate
 
 @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension Lab {
+  static let accl_d65WhitePoint = (
+    x: vDSP.divide([0.3127],0.3290).first!,
+    y: 1.00000,
+    z: vDSP.divide([vDSP.sum([1.0,-0.3127, -0.3290])], 0.3290).first!
+  )
+  
   static let k = vDSP.divide([24389.0], 27.0).first!
   static let e = vDSP.divide([216.0], 24389.0).first!
   static let limit = vDSP.multiply(Self.k, [Self.e]).first!
@@ -74,16 +79,10 @@ extension Lab {
     vForce.pow(bases: [fz], exponents: [3]).first! :
     vDSP.divide([vDSP.multiply(116, [fz]).first! - 16], Self.k).first!
     
-    let d65WhitePoint = (
-      x: vDSP.divide([0.3127],0.3290).first!,
-      y: 1.00000,
-      z: vDSP.divide([vDSP.sum([1.0,-0.3127, -0.3290])], 0.3290).first!
-    )
-    
     return XYZ(
-      x: vDSP.multiply(d65WhitePoint.x, [x]).first!,
-      y: vDSP.multiply(d65WhitePoint.y, [y]).first!,
-      z: vDSP.multiply(d65WhitePoint.z, [z]).first!
+      x: vDSP.multiply(Self.accl_d65WhitePoint.x, [x]).first!,
+      y: vDSP.multiply(Self.accl_d65WhitePoint.y, [y]).first!,
+      z: vDSP.multiply(Self.accl_d65WhitePoint.z, [z]).first!
     )
   }
 }
