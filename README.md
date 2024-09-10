@@ -1,20 +1,30 @@
 # ChromaKit
 
-ChromaKit adds convenience API for `SwiftUI.Color`, `UIKit.UIColor` and `AppKit.NSColor` that lets you easily create colours in the Lch, Lab, Oklch, and Oklab colour spaces.
+ChromaKit lets you easily create colors in the Lch, Lab, Oklch, and Oklab color spaces, convert them, and display them in native color types.
 
-The colour transformations are based on [CSS Color Module Level 4](https://www.w3.org/TR/css-color-4/) sample code, and so should closely match what you see in most browsers.
+The color transformations are based on [CSS Color Module Level 4](https://www.w3.org/TR/css-color-4/) sample code, and so should closely match what you see in most browsers.
 
 ## Usage
 
-Use the static functions on the `Color`, `UIColor`, or `NSColor`:
+Initialize `Color`, `UIColor`, or `NSColor` using ChromaKit color types:
 
 ```swift
 import ChromaKit
 
-let lch = Color.lch(80, 80, 80)
-let lab = Color.lab(80, 13.89, 78.78)
-let oklch = UIColor.oklch(0.833, 0.168, 80.115)
-let oklab = NSColor.oklab(0.833, 0.029, 0.165)
+// Create
+let lch = Lch(l: 80, c: 80, h: 80)
+let lab = Lab(l: 80, a: 13.89, b: 78.78)
+let oklch = Oklch(l: 0.833, c: 0.168, h: 80.115)
+let oklab = Oklab(l: 0.833, a: 0.029, b: 0.165)
+
+// Convert
+let xyz = lch.xyz
+let p3 = lab.p3
+
+// Display
+let color = Color(lch)
+let uiColor = UIColor(lab)
+let nsColor = NSColor(oklch) 
 ```
 
 ## Installation

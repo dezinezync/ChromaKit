@@ -12,15 +12,15 @@ struct ColorMatrix {
 
 extension ColorMatrix {
 	func dotProduct(_ components: ColorComponents) -> ColorComponents {
-    #if canImport(simd)
-    return accl_dotProduct(components)
-    #else
+        #if canImport(simd)
+        return accl_dotProduct(components)
+        #else
 		return (
 			components.0 * x.0 + components.1 * x.1 + components.2 * x.2,
 			components.0 * y.0 + components.1 * y.1 + components.2 * y.2,
 			components.0 * z.0 + components.1 * z.1 + components.2 * z.2
 		)
-    #endif
+        #endif
 	}
 }
 

@@ -1,17 +1,25 @@
 import Foundation
 
 /// A LAB value in the Oklab color space
-struct Oklab {
+public struct Oklab: XYZConvertable {
 	
 	// MARK: Properties
 	
-	var l: Double
-	var a: Double
-	var b: Double
+    public var l: Double
+    public var a: Double
+    public var b: Double
+    
+    // MARK: Init
+    
+    public init(l: Double, a: Double, b: Double) {
+        self.l = l
+        self.a = a
+        self.b = b
+    }
 	
 	// MARK: Conversions
 	
-	func xyz() -> XYZ {
+    public var xyz: XYZ {
 		let lmsToXyz = ColorMatrix(
 			x: ( 1.2268798733741557,  -0.5578149965554813,  0.28139105017721583),
 			y: (-0.04057576262431372,  1.1122868293970594, -0.07171106666151701),
@@ -27,11 +35,5 @@ struct Oklab {
 		let lms = oklabToLms.dotProduct((l, a, b))
 		let (x, y, z) = lmsToXyz.dotProduct((pow(lms.0, 3), pow(lms.1, 3), pow(lms.2, 3)))
 		return XYZ(x: x, y: y, z: z)
-	}
-	
-	// MARK: Sugar
-	
-	func p3() -> P3 {
-		xyz().p3()
 	}
 }
