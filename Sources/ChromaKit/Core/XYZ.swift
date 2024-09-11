@@ -1,22 +1,30 @@
 import Foundation
 
 /// An XYZ value in the XYZ color space
-struct XYZ {
+public struct XYZ: XYZConvertable {
 	
 	// MARK: Properties
 	
-	var x: Double
-	var y: Double
-	var z: Double
+    public var x: Double
+    public var y: Double
+    public var z: Double
+    
+    // MARK: Init
+    
+    public init(x: Double, y: Double, z: Double) {
+        self.x = x
+        self.y = y
+        self.z = z
+    }
 	
 	// MARK: Conversions
 	
-	func p3() -> P3 {
-    #if canImport(Accelerate)
-    if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
-      return accl_p3()
-    }
-    #endif
+    public var p3: P3 {
+        #if canImport(Accelerate)
+        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
+          return accl_p3()
+        }
+        #endif
 		let xyzToLinearP3 = ColorMatrix(
 			x: (446124/178915, -333277/357830,   -72051/178915),
 			y: (-14852/17905,    63121/35810,       423/17905),
@@ -26,6 +34,17 @@ struct XYZ {
 		let (r, g, b) = xyzToLinearP3.dotProduct((x, y, z))
 		return P3(r: r, g: g, b: b).gammaCorrected()
 	}
+    
+    public var xyz: XYZ { self }
+}
+
+/// A color that can be converted to XYZ color space
+public protocol XYZConvertable {
+    var xyz: XYZ { get }
+}
+
+public extension XYZConvertable {
+    var p3: P3 { xyz.p3 }
 }
 
 #if canImport(Accelerate)

@@ -1,7 +1,7 @@
 import Foundation
 
 /// A Lab value in the CIELab color space
-struct Lab {
+public struct Lab: XYZConvertable {
   static let d65WhitePoint = (
     x: 0.3127/0.3290,
     y: 1.00000,
@@ -10,18 +10,26 @@ struct Lab {
 	
 	// MARK: Properties
 	
-	var l: Double
-	var a: Double
-	var b: Double
+    public var l: Double
+    public var a: Double
+    public var b: Double
+    
+    // MARK: Init
+    
+    public init(l: Double, a: Double, b: Double) {
+        self.l = l
+        self.a = a
+        self.b = b
+    }
 	
 	// MARK: Conversions
 	
-	func xyz() -> XYZ {
-    #if canImport(Accelerate)
-    if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
-      return accl_xyz()
-    }
-    #endif
+    public var xyz: XYZ {
+        #if canImport(Accelerate)
+        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
+          return accl_xyz()
+        }
+        #endif
 		let k = 24389.0/27.0
 		let e = 216.0/24389.0
 		
@@ -34,16 +42,10 @@ struct Lab {
 		let z = pow(fz, 3) > e ? pow(fz, 3) : (116 * fz - 16)/k
 		
 		return XYZ(
-      x: x * Self.d65WhitePoint.x,
-      y: y * Self.d65WhitePoint.y,
-      z: z * Self.d65WhitePoint.z
+          x: x * Self.d65WhitePoint.x,
+          y: y * Self.d65WhitePoint.y,
+          z: z * Self.d65WhitePoint.z
 		)
-	}
-	
-	// MARK: Sugar
-	
-	func p3() -> P3 {
-		xyz().p3()
 	}
 }
 
